@@ -86,10 +86,13 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
                 model_type = "google/electra-large-generator"
             else:
                 model_type = "google/electra-base-generator"
+            tokenizer = ElectraTokenizerFast.from_pretrained(model_type)
+            tokenizer.pad_token = tokenizer.eos_token
             config = ElectraConfig.from_pretrained(model_type)
             config.is_decoder = True
+            config.embedding_size = len(tokenizer)
             model = ElectraForCausalLM.from_pretrained(model_type, config=config).to(device)
-            tokenizer = ElectraTokenizerFast.from_pretrained(model_type)
+
         elif exp_type == "d-o":
             if large:
                 model_type = "gpt2-xl"
@@ -110,7 +113,7 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
             #tokenizer.add_special_tokens({'pad_token': '[PAD]'})
             #model.resize_token_embeddings(len(tokenizer))
             tokenizer.pad_token = tokenizer.eos_token
-            model.resize_token_embeddings(len(tokenizer))
+            #model.resize_token_embeddings(len(tokenizer))
 
         print("Model type:", model_type)
         n_elements = []
