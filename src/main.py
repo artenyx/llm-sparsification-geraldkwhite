@@ -36,7 +36,7 @@ def run_model_one_example(example, model, tokenizer, first_and_second):
         tk_example_opt = tokenizer(first_second_sent_opt, return_tensors="pt", padding=True).to(device)
     else:
         tk_example_opt = tokenizer(second_sent_opt, return_tensors="pt", padding=True).to(device)
-    output = model(**tk_example_opt, labels=tk_example_opt['input_ids'][label_idx].repeat(10, 1))
+    output = model(**tk_example_opt, labels=tk_example_opt['input_ids'][label_idx].repeat(10, 1).to(device))
 
     tokenized = tk_example_opt ###
     ex_sm_logit_list = []
