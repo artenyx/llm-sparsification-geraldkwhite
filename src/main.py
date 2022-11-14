@@ -35,7 +35,7 @@ def run_model_one_example(example, model, tokenizer, first_and_second):
         tk_example_opt = tokenizer(first_second_sent_opt, return_tensors="pt", padding=True).to(device)
     else:
         tk_example_opt = tokenizer(second_sent_opt, return_tensors="pt", padding=True).to(device)
-    output = model(**tk_example_opt, labels=tk_example_opt['input_ids'][label_idx].repeat(10, 1).to(device))
+    output = model(**tk_example_opt, labels=tk_example_opt['input_ids'][label_idx].repeat(10, 1))
 
     tokenized = tk_example_opt ###
     ex_sm_logit_list = []
@@ -106,8 +106,8 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
         else:
             raise Exception("Incorrect exp_type parameter. Choices are e-o, d-o, e-d.")
         print("Model type:", model_type)
-        #if tokenizer.pad_token is None:
-            #tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+        if tokenizer.pad_token is None:
+            tokenizer.add_special_tokens({'pad_token': '[PAD]'})
         n_elements = []
         n_elements_zero = []
         for name, module in model.named_modules():
