@@ -1,5 +1,6 @@
 import transformers
-from transformers import GPT2Config, GPT2Model, GPT2LMHeadModel, GPT2Tokenizer, GPT2TokenizerFast, T5Config, T5Model, T5Tokenizer, ElectraConfig, ElectraTokenizer, ElectraForCausalLM
+from transformers import GPT2Config, GPT2Model, GPT2LMHeadModel, GPT2Tokenizer, GPT2TokenizerFast, \
+    T5Config, T5Model, T5Tokenizer, ElectraConfig, ElectraTokenizerFast, ElectraForCausalLM
 import torch
 from torch import nn
 import torch.nn.utils.prune as prune
@@ -88,7 +89,7 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
             config = ElectraConfig.from_pretrained(model_type)
             config.is_decoder = True
             model = ElectraForCausalLM.from_pretrained(model_type, config=config).to(device)
-            tokenizer = ElectraTokenizer.from_pretrained(model_type)
+            tokenizer = ElectraTokenizerFast.from_pretrained(model_type)
         elif exp_type == "d-o":
             if large:
                 model_type = "gpt2-xl"
