@@ -106,7 +106,7 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
         else:
             raise Exception("Incorrect exp_type parameter. Choices are e-o, d-o, e-d.")
         if tokenizer.pad_token is None:
-            tokenizer.pad_token = tokenizer.eos_token
+            tokenizer.add_special_tokens({'pad_token': '[PAD]'})
         print("Model type:", model_type)
         n_elements = []
         n_elements_zero = []
