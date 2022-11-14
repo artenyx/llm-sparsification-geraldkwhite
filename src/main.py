@@ -1,5 +1,5 @@
 import transformers
-from transformers import GPT2Config, GPT2Model, GPT2LMHeadModel, GPT2Tokenizer, GPT2TokenizerFast, T5Config, T5Model, T5Tokenizer, ElectraConfig, ElectraTokenizer, ElectraModel
+from transformers import GPT2Config, GPT2Model, GPT2LMHeadModel, GPT2Tokenizer, GPT2TokenizerFast, T5Config, T5Model, T5Tokenizer, ElectraConfig, ElectraTokenizer, ElectraForCausalLM
 import torch
 from torch import nn
 import torch.nn.utils.prune as prune
@@ -34,7 +34,7 @@ def run_model_one_example(example, model, tokenizer, first_and_second):
         tk_example_opt = tokenizer(first_second_sent_opt, return_tensors="pt", padding=True)
     else:
         tk_example_opt = tokenizer(second_sent_opt, return_tensors="pt", padding=True)
-    output = model(**tk_example_opt, labels=tk_example_opt['input_ids'][label_idx].repeat(10,1))
+    output = model(**tk_example_opt, labels=tk_example_opt['input_ids'][label_idx].repeat(10, 1))
 
     tokenized = tk_example_opt ###
     ex_sm_logit_list = []
@@ -81,11 +81,17 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
     for sparse_lev in sparsity_list:
         if exp_type == "e-o":
             if large:
-                model_type = "google/electra-large-discriminator"
-                model = ElectraModel.from_pretrained(model_type)
+                model_type = "google/electra-large-generator"
+                tokenizer = ElectraTokenizer.from_pretrained("google/electra-base-generator")
+                config = ElectraConfig.from_pretrained("google/electra-base-generator")
+                config.is_decoder = True
+                model = ElectraForCausalLM.from_pretrained("google/electra-base-generator", config=config)
             else:
-                model_type = "google/electra-small-discriminator"
-                model = ElectraModel.from_pretrained(model_type)
+                model_type = "google/electra-base-generator"
+                tokenizer = ElectraTokenizer.from_pretrained("google/electra-base-generator")
+                config = ElectraConfig.from_pretrained("google/electra-base-generator")
+                config.is_decoder = True
+                model = ElectraForCausalLM.from_pretrained("google/electra-base-generator", config=config)
         elif exp_type == "d-o":
             if large:
                 model_type = "gpt2-xl"
@@ -136,7 +142,8 @@ if __name__ == "__main__":
     parser.add_argument("--model_type", type=str, default="d-o", choices=["d-o", "e-o", "e-d"])
     parser.add_argument("--num_examples", type=int, default=10)
     parser.add_argument("--first_and_sec", type=bool, default=False)
+    parser.add_argument("--large", type=bool, default=False)
     args = parser.parse_args()
 
-    sparsity_experiment(args.model_type, args.num_examples, sparsity_list=[0.0], first_and_second=args.first_and_sec)
+    sparsity_experiment(args.model_type, args.num_examples, large=args.large, sparsity_list=[0.0], first_and_second=args.first_and_sec)
 
