@@ -1,6 +1,6 @@
 import transformers
 from transformers import GPT2Config, GPT2Model, GPT2LMHeadModel, GPT2Tokenizer, GPT2TokenizerFast, \
-    T5Config, T5ForConditionalGeneration, T5Tokenizer, ElectraConfig, ElectraTokenizerFast, ElectraForCausalLM
+    T5Config, T5ForConditionalGeneration, T5TokenizerFast, ElectraConfig, ElectraTokenizerFast, ElectraForCausalLM
 import torch
 from torch import nn
 import torch.nn.utils.prune as prune
@@ -118,7 +118,7 @@ def sparsity_experiment(args, exp_type, num_examples, large=False, sparsity_list
             else:
                 model_type = "t5-small"
             model = T5ForConditionalGeneration.from_pretrained(model_type)
-            tokenizer = T5Tokenizer.from_pretrained(model_type)
+            tokenizer = T5TokenizerFast.from_pretrained(model_type)
         else:
             raise Exception("Incorrect exp_type parameter. Choices are e-o, d-o, e-d.")
 
