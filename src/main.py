@@ -31,7 +31,6 @@ def run_model_one_example(example, model, tokenizer, first_and_second):
     second_sent_ans = [get_question(example['question'], example['answer'])] * 10
     first_second_sent_opt = [first_sents[i] + second_sent_opt[i] for i in range(10)]
 
-    tokenizer.pad_token = tokenizer.eos_token
     if first_and_second:
         tk_example_opt = tokenizer(first_second_sent_opt, return_tensors="pt", padding=True).to(device)
     else:
@@ -113,12 +112,12 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
         else:
             raise Exception("Incorrect exp_type parameter. Choices are e-o, d-o, e-d.")
         print("Model type:", model_type)
-        tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+        if tokenizer.pad_token is None:
+            tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+        model.resize_token_embeddings(len(tokenizer))
         n_elements = []
         n_elements_zero = []
         for name, module in model.named_modules():
-            #print(module)
-            #print(type(module))
             if isinstance(module, transformers.pytorch_utils.Conv1D):
                 prune.l1_unstructured(module, name='weight', amount=sparse_lev)
                 n_elements_zero.append(float(torch.sum(module.weight == 0)))
