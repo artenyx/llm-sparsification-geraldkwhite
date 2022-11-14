@@ -40,7 +40,7 @@ def run_model_one_example(args, example, model, tokenizer, first_and_second):
     if args.model_type == "d-o":
         tk_example_opt = tokenizer(sent_in, return_tensors="pt", padding=True).to(device)
     elif args.model_type == "e-o":
-        tk_example_opt = tokenizer(sent_in, return_tensors="pt", max_length=512).to(device)
+        tk_example_opt = tokenizer(sent_in, return_tensors="pt", truncation=True).to(device)
     else:
         tk_example_opt = tokenizer(sent_in, return_tensors="pt", padding=True).to(device)
 
