@@ -31,7 +31,6 @@ def run_model_one_example(example, model, tokenizer, first_and_second):
     second_sent_ans = [get_question(example['question'], example['answer'])] * 10
     first_second_sent_opt = [first_sents[i] + second_sent_opt[i] for i in range(10)]
 
-    tokenizer.pad_token = tokenizer.eos_token
     if first_and_second:
         tk_example_opt = tokenizer(first_second_sent_opt, return_tensors="pt", padding=True).to(device)
     else:
@@ -106,6 +105,8 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
                 model = T5Model.from_pretrained(model_type)
         else:
             raise Exception("Incorrect exp_type parameter. Choices are e-o, d-o, e-d.")
+        if tokenizer.pad_token is None:
+            tokenizer.pad_token = tokenizer.eos_token
         print("Model type:", model_type)
         n_elements = []
         n_elements_zero = []
