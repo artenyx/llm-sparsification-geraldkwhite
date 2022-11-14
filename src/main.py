@@ -22,7 +22,7 @@ def get_question(raw_question, insert):
     return new_question
 
 
-def run_model_one_example(example, model, tokenizer, first_and_second):
+def run_model_one_example(args, example, model, tokenizer, first_and_second):
     label_idx = example['options'].index(example['answer'])
     #print(example['answer'])
     first_sent = ' '.join(example['sentences']).replace("`",'')
@@ -33,9 +33,17 @@ def run_model_one_example(example, model, tokenizer, first_and_second):
     first_second_sent_opt = [first_sents[i] + second_sent_opt[i] for i in range(10)]
 
     if first_and_second:
-        tk_example_opt = tokenizer(first_second_sent_opt, return_tensors="pt", padding=True, truncate=True).to(device)
+        sent_in = first_second_sent_opt
     else:
-        tk_example_opt = tokenizer(second_sent_opt, return_tensors="pt", padding=True, truncate=True).to(device)
+        sent_in = second_sent_opt
+
+    if args.model_type == "d-o":
+        tk_example_opt = tokenizer(sent_in, return_tensors="pt", padding=True).to(device)
+    elif args.model_type == "e-o":
+        tk_example_opt = tokenizer(sent_in, return_tensors="pt").to(device)
+    else:
+        tk_example_opt = tokenizer(sent_in, return_tensors="pt", padding=True).to(device)
+
     output = model(**tk_example_opt, labels=tk_example_opt['input_ids'][label_idx].repeat(10, 1).to(device))
 
     tokenized = tk_example_opt ###
@@ -65,18 +73,18 @@ def run_model_one_example(example, model, tokenizer, first_and_second):
         return 0
 
 
-def cbt_model_sparsity_experiment(number_examples, model, tokenizer, first_and_second):
+def cbt_model_sparsity_experiment(args, number_examples, model, tokenizer, first_and_second):
     cbt = load_dataset("cbt", "CN", split="test") #"CN", "NE", "P", "V","raw"
     t0 = time.time()
     correct = 0
     for i in range(number_examples):
-        correct += run_model_one_example(cbt[i], model, tokenizer, first_and_second)
+        correct += run_model_one_example(args, cbt[i], model, tokenizer, first_and_second)
     t1 = time.time() - t0
     correct_frac = correct/number_examples
     return correct, correct_frac, t1
 
 
-def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None, print_layers=False, first_and_second=True):
+def sparsity_experiment(args, exp_type, num_examples, large=False, sparsity_list=None, print_layers=False, first_and_second=True):
     if sparsity_list is None:
         sparsity_list = [0.10, 0.50, 0.90, 0.95, 0.99]
     results = []
@@ -131,8 +139,7 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
                 if print_layers:
                     print("Sparsity in linear.weight: {:.2f}%".format(100. * n_elements_zero[-1] / n_elements[-1]))
         print("Total sparse: {:.2f}, Total trainable: {:.2f}, Global sparsity: {:.2f}%".format(sum(n_elements_zero), sum(n_elements),100. * sum(n_elements_zero) /sum(n_elements)))
-        output = cbt_model_sparsity_experiment(num_examples, model, tokenizer, first_and_second)
-        correct, correct_frac, t1 = cbt_model_sparsity_experiment(num_examples, model, tokenizer, first_and_second)
+        correct, correct_frac, t1 = cbt_model_sparsity_experiment(args, num_examples, model, tokenizer, first_and_second)
         results.append((model_type, sparse_lev, correct, correct_frac, time))
         print("Current results: " + str((model_type, sparse_lev, correct, correct_frac, t1)))
     pd.DataFrame(results).to_csv("data_" + model_type)
@@ -147,5 +154,5 @@ if __name__ == "__main__":
     parser.add_argument("--large", type=bool, default=False)
     args = parser.parse_args()
 
-    sparsity_experiment(args.model_type, args.num_examples, large=args.large, sparsity_list=[0.0], first_and_second=args.first_and_sec)
+    sparsity_experiment(args, args.model_type, args.num_examples, large=args.large, sparsity_list=[0.0], first_and_second=args.first_and_sec)
 
