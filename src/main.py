@@ -85,10 +85,10 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
                 model_type = "google/electra-large-generator"
             else:
                 model_type = "google/electra-base-generator"
-            tokenizer = ElectraTokenizer.from_pretrained(model_type)
             config = ElectraConfig.from_pretrained(model_type)
             config.is_decoder = True
-            model = ElectraForCausalLM.from_pretrained(model_type, config=config)
+            model = ElectraForCausalLM.from_pretrained(model_type, config=config).to(device)
+            tokenizer = ElectraTokenizer.from_pretrained(model_type)
         elif exp_type == "d-o":
             if large:
                 model_type = "gpt2-xl"
