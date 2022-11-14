@@ -10,8 +10,16 @@ import sentencepiece
 import time
 import argparse
 import pandas as pd
+import os
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def make_dir(path):
+    if not os.path.exists(path):
+        os.mkdir(path)
+    else:
+        pass
 
 
 def get_question(raw_question, insert):
@@ -137,6 +145,7 @@ def sparsity_experiment(args, exp_type, num_examples, large=False, sparsity_list
         correct, correct_frac, t1 = cbt_model_sparsity_experiment(args, num_examples, model, tokenizer, first_and_second)
         results.append((model_type, sparse_lev, correct, correct_frac, time))
         print("Current results: " + str((model_type, sparse_lev, correct, correct_frac, t1)))
+    make_dir("data_" + model_type)
     pd.DataFrame(results).to_csv("data_" + model_type)
     return results
 
