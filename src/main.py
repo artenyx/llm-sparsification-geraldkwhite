@@ -108,7 +108,6 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
         print("Model type:", model_type)
         if tokenizer.pad_token is None:
             tokenizer.add_special_tokens({'pad_token': '[PAD]'})
-            model.resize_token_embeddings(len(tokenizer))
         n_elements = []
         n_elements_zero = []
         for name, module in model.named_modules():
