@@ -97,7 +97,6 @@ def sparsity_experiment(args, exp_type, num_examples, large=False, sparsity_list
             tokenizer = ElectraTokenizerFast.from_pretrained(model_type)
             config = ElectraConfig.from_pretrained(model_type)
             model = ElectraForCausalLM.from_pretrained(model_type, config=config).to(device)
-
         elif exp_type == "d-o":
             if large:
                 model_type = "gpt2-xl"
@@ -105,6 +104,7 @@ def sparsity_experiment(args, exp_type, num_examples, large=False, sparsity_list
                 model_type = "gpt2"
             model = GPT2LMHeadModel.from_pretrained(model_type).to(device)
             tokenizer = GPT2TokenizerFast.from_pretrained(model_type)
+            tokenizer.pad_token = tokenizer.eos_token
         elif exp_type == "e-d":
             if large:
                 model_type = "t5-3b"
@@ -114,11 +114,6 @@ def sparsity_experiment(args, exp_type, num_examples, large=False, sparsity_list
                 model = T5Model.from_pretrained(model_type)
         else:
             raise Exception("Incorrect exp_type parameter. Choices are e-o, d-o, e-d.")
-        if tokenizer.pad_token is None:
-            #tokenizer.add_special_tokens({'pad_token': '[PAD]'})
-            #model.resize_token_embeddings(len(tokenizer))
-            tokenizer.pad_token = tokenizer.eos_token
-            #model.resize_token_embeddings(len(tokenizer))
 
         print("Model type:", model_type)
         n_elements = []
