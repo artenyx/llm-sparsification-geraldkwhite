@@ -128,7 +128,7 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
         output = cbt_model_sparsity_experiment(num_examples, model, tokenizer, first_and_second)
         correct, correct_frac, t1 = cbt_model_sparsity_experiment(num_examples, model, tokenizer, first_and_second)
         results.append((model_type, sparse_lev, correct, correct_frac, time))
-        print("Current results: " + str((model_type, sparse_lev, correct, correct_frac, time)))
+        print("Current results: " + str((model_type, sparse_lev, correct, correct_frac, t1)))
     pd.DataFrame(results).to_csv("data_" + model_type)
     return results
 
