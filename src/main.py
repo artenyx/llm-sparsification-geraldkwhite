@@ -156,5 +156,5 @@ if __name__ == "__main__":
     parser.add_argument("--large", type=bool, default=False)
     args = parser.parse_args()
 
-    sparsity_experiment(args, args.model_type, args.num_examples, large=args.large, sparsity_list=[0.0], first_and_second=args.first_and_sec)
+    sparsity_experiment(args, args.model_type, args.num_examples, large=args.large, first_and_second=args.first_and_sec)
 
