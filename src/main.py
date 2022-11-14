@@ -87,10 +87,7 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
             else:
                 model_type = "google/electra-base-generator"
             tokenizer = ElectraTokenizerFast.from_pretrained(model_type)
-            tokenizer.pad_token = tokenizer.eos_token
             config = ElectraConfig.from_pretrained(model_type)
-            config.is_decoder = True
-            config.embedding_size = len(tokenizer)
             model = ElectraForCausalLM.from_pretrained(model_type, config=config).to(device)
 
         elif exp_type == "d-o":
