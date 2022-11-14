@@ -83,25 +83,19 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
         if exp_type == "e-o":
             if large:
                 model_type = "google/electra-large-generator"
-                tokenizer = ElectraTokenizer.from_pretrained("google/electra-base-generator")
-                config = ElectraConfig.from_pretrained("google/electra-base-generator")
-                config.is_decoder = True
-                model = ElectraForCausalLM.from_pretrained("google/electra-base-generator", config=config).to(device)
             else:
                 model_type = "google/electra-base-generator"
-                tokenizer = ElectraTokenizer.from_pretrained("google/electra-base-generator")
-                config = ElectraConfig.from_pretrained("google/electra-base-generator")
-                config.is_decoder = True
-                model = ElectraForCausalLM.from_pretrained("google/electra-base-generator", config=config).to(device)
+            tokenizer = ElectraTokenizer.from_pretrained(model_type)
+            config = ElectraConfig.from_pretrained(model_type)
+            config.is_decoder = True
+            model = ElectraForCausalLM.from_pretrained(model_type, config=config).to(device)
         elif exp_type == "d-o":
             if large:
                 model_type = "gpt2-xl"
-                model = GPT2LMHeadModel.from_pretrained(model_type).to(device)
-                tokenizer = GPT2TokenizerFast.from_pretrained(model_type)
             else:
                 model_type = "gpt2"
-                model = GPT2LMHeadModel.from_pretrained(model_type).to(device)
-                tokenizer = GPT2TokenizerFast.from_pretrained(model_type)
+            model = GPT2LMHeadModel.from_pretrained(model_type).to(device)
+            tokenizer = GPT2TokenizerFast.from_pretrained(model_type)
         elif exp_type == "e-d":
             if large:
                 model_type = "t5-3b"
@@ -114,7 +108,7 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
         print("Model type:", model_type)
         if tokenizer.pad_token is None:
             tokenizer.add_special_tokens({'pad_token': '[PAD]'})
-        model.resize_token_embeddings(len(tokenizer))
+            model.resize_token_embeddings(len(tokenizer))
         n_elements = []
         n_elements_zero = []
         for name, module in model.named_modules():
