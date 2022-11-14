@@ -40,8 +40,7 @@ def run_model_one_example(args, example, model, tokenizer, first_and_second):
     if args.model_type == "d-o":
         tk_example_opt = tokenizer(sent_in, return_tensors="pt", padding=True).to(device)
     elif args.model_type == "e-o":
-        #tk_example_opt = tokenizer(sent_in, return_tensors="pt").to(device)
-        tk_example_opt = torch.tensor(tokenizer.encode(sent_in, add_special_tokens=True)).unsqueeze(0).to(device)
+        tk_example_opt = tokenizer(sent_in, return_tensors="pt", add_special_tokens=True).to(device)
     else:
         tk_example_opt = tokenizer(sent_in, return_tensors="pt", padding=True).to(device)
 
