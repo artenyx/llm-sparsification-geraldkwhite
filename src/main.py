@@ -97,11 +97,11 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
         elif exp_type == "d-o":
             if large:
                 model_type = "gpt2-xl"
-                model = GPT2LMHeadModel.from_pretrained(model_type)
+                model = GPT2LMHeadModel.from_pretrained(model_type).to(device)
                 tokenizer = GPT2TokenizerFast.from_pretrained(model_type)
             else:
                 model_type = "gpt2"
-                model = GPT2LMHeadModel.from_pretrained(model_type)
+                model = GPT2LMHeadModel.from_pretrained(model_type).to(device)
                 tokenizer = GPT2TokenizerFast.from_pretrained(model_type)
         elif exp_type == "e-d":
             if large:
