@@ -117,7 +117,7 @@ def sparsity_experiment(args, exp_type, num_examples, large=False, sparsity_list
                 model_type = "t5-3b"
             else:
                 model_type = "t5-small"
-            model = T5ForConditionalGeneration.from_pretrained(model_type)
+            model = T5ForConditionalGeneration.from_pretrained(model_type).to(device)
             tokenizer = T5TokenizerFast.from_pretrained(model_type)
         else:
             raise Exception("Incorrect exp_type parameter. Choices are e-o, d-o, e-d.")
