@@ -31,6 +31,7 @@ def run_model_one_example(example, model, tokenizer, first_and_second):
     second_sent_ans = [get_question(example['question'], example['answer'])] * 10
     first_second_sent_opt = [first_sents[i] + second_sent_opt[i] for i in range(10)]
 
+    tokenizer.pad_token = tokenizer.eos_token
     if first_and_second:
         tk_example_opt = tokenizer(first_second_sent_opt, return_tensors="pt", padding=True).to(device)
     else:
@@ -83,19 +84,25 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
         if exp_type == "e-o":
             if large:
                 model_type = "google/electra-large-generator"
+                tokenizer = ElectraTokenizer.from_pretrained("google/electra-base-generator")
+                config = ElectraConfig.from_pretrained("google/electra-base-generator")
+                config.is_decoder = True
+                model = ElectraForCausalLM.from_pretrained("google/electra-base-generator", config=config)
             else:
                 model_type = "google/electra-base-generator"
-            tokenizer = ElectraTokenizer.from_pretrained(model_type)
-            config = ElectraConfig.from_pretrained(model_type)
-            config.is_decoder = True
-            model = ElectraForCausalLM.from_pretrained(model_type, config=config).to(device)
+                tokenizer = ElectraTokenizer.from_pretrained("google/electra-base-generator")
+                config = ElectraConfig.from_pretrained("google/electra-base-generator")
+                config.is_decoder = True
+                model = ElectraForCausalLM.from_pretrained("google/electra-base-generator", config=config)
         elif exp_type == "d-o":
             if large:
                 model_type = "gpt2-xl"
+                model = GPT2LMHeadModel.from_pretrained(model_type).to(device)
+                tokenizer = GPT2TokenizerFast.from_pretrained(model_type)
             else:
                 model_type = "gpt2"
-            model = GPT2LMHeadModel.from_pretrained(model_type).to(device)
-            tokenizer = GPT2TokenizerFast.from_pretrained(model_type)
+                model = GPT2LMHeadModel.from_pretrained(model_type).to(device)
+                tokenizer = GPT2TokenizerFast.from_pretrained(model_type)
         elif exp_type == "e-d":
             if large:
                 model_type = "t5-3b"
@@ -106,11 +113,11 @@ def sparsity_experiment(exp_type, num_examples, large=False, sparsity_list=None,
         else:
             raise Exception("Incorrect exp_type parameter. Choices are e-o, d-o, e-d.")
         print("Model type:", model_type)
-        if tokenizer.pad_token is None:
-            tokenizer.add_special_tokens({'pad_token': '[PAD]'})
         n_elements = []
         n_elements_zero = []
         for name, module in model.named_modules():
+            #print(module)
+            #print(type(module))
             if isinstance(module, transformers.pytorch_utils.Conv1D):
                 prune.l1_unstructured(module, name='weight', amount=sparse_lev)
                 n_elements_zero.append(float(torch.sum(module.weight == 0)))
